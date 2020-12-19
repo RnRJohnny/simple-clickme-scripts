@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# $Header$
+
+# Launch youtube-dl with arg[1] or, if no arg, repeatedly prompt for URL and download (d/l) video using format 18
+# zenity GUI prompts for URL, OK to proceed or CANCEL to discontinue
+#
+# TODO: check for $DISPLAY
+# DONE: 4:22 19/12/20
+# TODO: check that ${url} is given on OK
+# TODO: check that ${url} is valid
+# TODO: other than YouTube particular URLs, ie. fb, investigate and incorporate
+#
+
+# define conditional status for repetitious prompting except over ssh/rpc/telnet/console
+if [[ -v DISPLAY ]]; then 
+	loop=true 
+else 
+	loop=false 
+fi
+
+# function to prompt for and either d/l from URL or redefine status
+prompt4url() {
+	if url=$(zenity --entry \
+		--title="Get YouTube Video" \
+		--text="Enter URL:");
+	then youtube-dl -f 18 ${url}
+	else loop=false
+	fi
+}
+
+# function validate URL
+#isURLvalid() {
+#}
+
+# if URL ARG given, d/l resource otherwise, continuously prompt for URLs until status redefined
+if test $# = 1; then
+	youtube-dl -f 18 $1
+else
+	if ${loop} == "true"; then
+		while [[ ${loop} == "true" ]] ; do 
+			prompt4url ;
+		done
+	else
+		echo Provide a valid YouTube URL as first argument
+	fi
+fi
